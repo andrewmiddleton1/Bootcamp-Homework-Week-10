@@ -42,7 +42,7 @@ function promptUser() {
 
         {
             type: "input",
-            name: "usage",
+            name: "useage",
             message: "Provide instructions and examples for use. Include screenshots as needed"
         },
 
@@ -58,22 +58,11 @@ function promptUser() {
             message: "Please choose the type of license for your app",
             name: "license",
             choices: [
-                "APM",
-                "AUR License",
-                "Bower",
-                "Cocoapodes",
-                "Condo-License",
-                "CPAN",
-                "CRAN/METACRAN",
-                "Crates.io",
-                "CTAN",
-                "DUB",
-                "Eclipse Marketplace",
-                "Github",
-                "Hex.pm",
-                "NPM",
-                "Packagist License",
-                "PyPI-License"
+                "Apache 2.0",
+                "GNU GPL v3",
+                "BSD 3-Clause License",
+                "MIT",
+                "Unlicense",
 
             ]
         },
@@ -95,11 +84,15 @@ function promptUser() {
             name: "tests",
             message: "Please provide links to any tests"
         },
+
+        {
+            type: "input",
+            name: "questions",
+            message: "Please provide your Github username and link to your Github profile"
+        },
     ]);
 
 }
-
-
 
 function generateREADME(data) {
     console.log(data);
@@ -111,31 +104,48 @@ function generateREADME(data) {
 My app does ${data.appdescription}
         
 ## Table of Contents
-* ${data.contents[0]}
-* ${data.contents[1]}
-* ${data.contents[2]}
-* ${data.contents[3]}
-* ${data.contents[4]}
-* ${data.contents[5]}
-* ${data.contents[6]}
-* ${data.contents[7]}
- 
+* ${data.contents.filter(element => {
+        if (!element) {
+            return false;
+        }
+        else return true;
+    }).join("\n* ")
+        }
+
+    
 ## Installation
 ${data.installation}
 
 ## Usage 
-${data.installation}
+${data.useage}
 (Screenshots to be added once README created)
 
 ## Credits
-${data.installation}
+${data.credits}
 
 ## License
 ${data.license}
 
 ## Badges
-(shields.io for badges relevant to license)
-![NPM](https://img.shields.io/npm/l/${data.package})
+${data.license.filter(element => {
+            if (element == "Apache 2.0") {
+                data.license.push("[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)");
+            }
+            if (element == "GNU GPL v3") {
+                data.license.push("[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)");
+            }
+            if (element == "BSD 3-Clause License") {
+                data.license.push("[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)");
+            }
+            if (element == "MIT") {
+                data.license.push("[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)");
+            }
+            if (element == "Unlicensed") {
+                data.license.push("[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)");
+            }
+        })
+        }
+${data.license[1]}
 
 ## Contributing
 ${data.contributing}
@@ -145,21 +155,28 @@ Note: the [Contributor Covenant](https://www.contributor-covenant.org/) is an in
 ${data.tests}
 
 ## Questions
-
+Please direct questions to ${data.questions}
 `;
 }
 
 
 async function init() {
-    console.log("hi")
+    console.log("Hello and Welcome to the README Generator")
     try {
+
         const data = await promptUser();
 
         const md = generateREADME(data);
 
         const filename = data.apptitle.toLowerCase().split(' ').join('') + ".md";
 
-        await writeFileAsync("appname.md", md);
+        console.log(filename);
+
+
+        await writeFileAsync(filename, md);
+
+        console.log(data.license);
+        console.log(data.license[1]);
 
         console.log("Successfully created README.md");
     } catch (err) {
